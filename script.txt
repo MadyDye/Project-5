@@ -1,0 +1,26 @@
+$ g++ -o calculator infix_calculator.cpp
+$ ./calculator
+
+Enter expression (or q to quit): 3+5
+Result: 8
+
+Enter expression (or q to quit): 8*(2+3)
+Result: 40
+
+Enter expression (or q to quit): 9/3+2
+Result: 5
+
+Enter expression (or q to quit): (4+5)*2
+Result: 18
+
+Enter expression (or q to quit): 3++5
+Invalid expression. Try again.
+
+Enter expression (or q to quit): (3+5
+Invalid expression. Try again.
+
+Enter expression (or q to quit): 9/0
+Error: Divide by zero
+
+Enter expression (or q to quit): q
+$
