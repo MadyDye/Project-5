@@ -1,0 +1,136 @@
+/**
+ * Infix Calculator Program
+ * @file infix_calculator.cpp
+ * @author Your Name
+ * @course CSCI 301
+ * @date 2026
+ */
+
+#include <iostream>
+#include <stack>
+#include <string>
+#include <stdexcept>
+using namespace std;
+
+class InfixCalculator {
+private:
+    string infix;
+
+    bool isWellFormed(const string& exp) {
+        for (char c : exp) {
+            if (!isdigit(c) && c!='+' && c!='-' && c!='*' && c!='/' && c!='(' && c!=')')
+                return false;
+        }
+        return true;
+    }
+
+    bool isBalanced(const string& exp) {
+        stack<char> s;
+        for (char c : exp) {
+            if (c == '(') s.push(c);
+            else if (c == ')') {
+                if (s.empty()) return false;
+                s.pop();
+            }
+        }
+        return s.empty();
+    }
+
+    int precedence(char op) {
+        if (op=='+' || op=='-') return 1;
+        if (op=='*' || op=='/') return 2;
+        return 0;
+    }
+
+    string infixToPostfix(const string& exp) {
+        stack<char> s;
+        string postfix = "";
+
+        for (char c : exp) {
+            if (isdigit(c)) postfix += c;
+            else if (c == '(') s.push(c);
+            else if (c == ')') {
+                while (!s.empty() && s.top() != '(') {
+                    postfix += s.top();
+                    s.pop();
+                }
+                s.pop();
+            } else {
+                while (!s.empty() && precedence(s.top()) >= precedence(c)) {
+                    postfix += s.top();
+                    s.pop();
+                }
+                s.push(c);
+            }
+        }
+
+        while (!s.empty()) {
+            postfix += s.top();
+            s.pop();
+        }
+
+        return postfix;
+    }
+
+    int evaluatePostfix(const string& exp) {
+        stack<int> s;
+
+        for (char c : exp) {
+            if (isdigit(c)) {
+                s.push(c - '0');
+            } else {
+                if (s.size() < 2) throw runtime_error("Invalid expression");
+
+                int b = s.top(); s.pop();
+                int a = s.top(); s.pop();
+
+                switch (c) {
+                    case '+': s.push(a + b); break;
+                    case '-': s.push(a - b); break;
+                    case '*': s.push(a * b); break;
+                    case '/':
+                        if (b == 0) throw runtime_error("Divide by zero");
+                        s.push(a / b);
+                        break;
+                }
+            }
+        }
+        return s.top();
+    }
+
+public:
+    bool setExpression(string exp) {
+        if (!isWellFormed(exp) || !isBalanced(exp)) return false;
+        infix = exp;
+        return true;
+    }
+
+    int evaluate() {
+        return evaluatePostfix(infixToPostfix(infix));
+    }
+};
+
+int main() {
+    InfixCalculator calc;
+    string input;
+
+    while (true) {
+        cout << "Enter expression (or q to quit): ";
+        cin >> input;
+
+        if (input == "q") break;
+
+        if (!calc.setExpression(input)) {
+            cout << "Invalid expression. Try again.\n";
+            continue;
+        }
+
+        try {
+            cout << "Result: " << calc.evaluate() << endl;
+        } catch (exception& e) {
+            cout << "Error: " << e.what() << endl;
+        }
+    }
+
+    return 0;
+}
